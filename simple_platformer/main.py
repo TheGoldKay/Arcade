@@ -121,20 +121,20 @@ class MyGame(arcade.Window):
                     # the player is on top of the box
                     if self.player_sprite.center_y > wall.top:
                         self.player_sprite.bottom = wall.top
-                        return
+                        break
                     else:
                         # the player is to the left of the box
                         if self.player_sprite.right > wall.left and self.player_sprite.left < wall.left:
                             self.player_sprite.right = wall.left
-                            return
+                            break
                         # player is at the right of the box (there are only three possibilities)                        
                         else: 
                             self.player_sprite.left = wall.right
-                            return
+                            break
             if arcade.check_for_collision(self.player_sprite, wall):
                 self.player_sprite.bottom = wall.top
                 self.can_jump = True
-                return 
+                break 
         
 
     def on_key_press(self, key: int, modifier: int):
