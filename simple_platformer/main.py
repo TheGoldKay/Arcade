@@ -1,4 +1,5 @@
 import arcade
+from itertools import cycle
 
 # https://api.arcade.academy/en/latest/api/window.html#arcade.Window
 SCREEN: dict = {
@@ -15,6 +16,7 @@ COLOR: dict = {
 PLAYER: dict = {
     "img_idle": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png",
     "img_jump": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_jump.png",
+    "img_walk": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_walk{}.png",
     "speed": 5,
     "jump": 80,
 }
@@ -44,9 +46,18 @@ class MyGame(arcade.Window):
         self.can_jump = True
         self.jump_counter = 0
         self.jump_limit = 2
+        self.on_ground = True
+        
+        # walk
+        self.walk_timer = 0.09
+        self.walk_clock = 0
         
         # CAMERA    
         self.camera = None
+        
+        # flip
+        self.flipped_horizontally = False
+        self.going_right = True
 
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
@@ -59,8 +70,20 @@ class MyGame(arcade.Window):
 
         # Set up the player, specifically placing it at these coordinates.
         self.player_sprite = arcade.Sprite(PLAYER["img_idle"], CHARACTER_SCALING)
+        #self.player_sprite = arcade.SpriteList()
+        self.idle_texture = arcade.load_texture(PLAYER["img_idle"])
+        self.jump_texture = [arcade.load_texture(PLAYER["img_jump"]), 
+                             arcade.load_texture(PLAYER["img_jump"], flipped_horizontally=True)]
+        self.is_idle = True
+        #self.player_sprite.append(arcade.Sprite(PLAYER["img_idle"], CHARACTER_SCALING))
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
+        # walk
+        self.walk_textures = cycle([
+            [arcade.load_texture(PLAYER["img_walk"].format(i)), 
+             arcade.load_texture(PLAYER["img_walk"].format(i), flipped_horizontally=True)] 
+            for i in range(8)])
+        # Add the player to the scene
         self.scene.add_sprite("Player", self.player_sprite)
         
         #create ``physics engine``
@@ -128,8 +151,22 @@ class MyGame(arcade.Window):
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.change_x = PLAYER["speed"]
         self.physics_engine.update()
+        self.player_walk(dt)
         self.check_ground_level()
         self.center_camera_to_player()
+
+    def player_walk(self, dt):
+        if self.right_pressed or self.left_pressed:
+            self.walk_clock += dt   
+            if self.walk_clock > self.walk_timer:
+                self.walk_clock = 0
+                texture_pair = next(self.walk_textures)
+                if self.going_right:
+                    self.player_sprite.texture = texture_pair[0]
+                else:
+                    self.player_sprite.texture = texture_pair[1]
+        elif self.on_ground:
+            self.player_sprite.texture = self.idle_texture        
         
     def check_ground_level(self, y_distance: float = 5):
         # break at the first collision
@@ -140,19 +177,23 @@ class MyGame(arcade.Window):
                     # the player is on top of the box
                     if self.player_sprite.center_y > wall.top:
                         self.player_sprite.bottom = wall.top
+                        self.on_ground = True
                         break
                     else:
                         # the player is to the left of the box
                         if self.player_sprite.right > wall.left and self.player_sprite.left < wall.left:
                             self.player_sprite.right = wall.left
+                            self.on_ground = True
                             break
                         # player is at the right of the box (there are only three possibilities)                        
                         else: 
                             self.player_sprite.left = wall.right
+                            self.on_ground = True
                             break
             if arcade.check_for_collision(self.player_sprite, wall):
                 self.player_sprite.bottom = wall.top
                 self.can_jump = True
+                self.on_ground = True
                 break 
         
 
@@ -162,10 +203,17 @@ class MyGame(arcade.Window):
             arcade.close_window()
         if key == arcade.key.UP or key == arcade.key.W: # JUMP ONE TIME
             self.player_sprite.center_y += PLAYER["jump"]
+            self.on_ground = False
+            if self.going_right:
+                self.player_sprite.texture = self.jump_texture[0]
+            else:
+                self.player_sprite.texture = self.jump_texture[1]
         if key == arcade.key.LEFT or key == arcade.key.A:
             self.left_pressed = True
+            self.going_right = False
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.right_pressed = True 
+            self.going_right = True
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT or key == arcade.key.A:
