@@ -68,26 +68,24 @@ class MyGame(arcade.Window):
         self.scene.add_sprite_list("Player")
         self.scene.add_sprite_list("Walls", use_spatial_hash=True)
 
-        # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = arcade.Sprite(PLAYER["img_idle"], CHARACTER_SCALING)
-        #self.player_sprite = arcade.SpriteList()
-        self.idle_texture = arcade.load_texture(PLAYER["img_idle"])
+        # set left and right facing sprites
+        self.idle_texture = [arcade.load_texture(PLAYER["img_idle"]), 
+                             arcade.load_texture(PLAYER["img_idle"], flipped_horizontally=True)]
         self.jump_texture = [arcade.load_texture(PLAYER["img_jump"]), 
                              arcade.load_texture(PLAYER["img_jump"], flipped_horizontally=True)]
-        self.is_idle = True
-        #self.player_sprite.append(arcade.Sprite(PLAYER["img_idle"], CHARACTER_SCALING))
-        self.player_sprite.center_x = 64
-        self.player_sprite.center_y = 128
-        # walk
+        self.idle_right = True
         self.walk_textures = cycle([
             [arcade.load_texture(PLAYER["img_walk"].format(i)), 
              arcade.load_texture(PLAYER["img_walk"].format(i), flipped_horizontally=True)] 
             for i in range(8)])
+        # set player sprite
+        self.player_sprite = arcade.Sprite(PLAYER["img_idle"], CHARACTER_SCALING)
+        self.player_sprite.center_x = 64
+        self.player_sprite.center_y = 128
         # Add the player to the scene
         self.scene.add_sprite("Player", self.player_sprite)
         
         #create ``physics engine``
-        
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.scene.get_sprite_list("Walls")
         )
@@ -151,11 +149,11 @@ class MyGame(arcade.Window):
         elif self.right_pressed and not self.left_pressed:
             self.player_sprite.change_x = PLAYER["speed"]
         self.physics_engine.update()
-        self.player_walk(dt)
+        self.move_player(dt)
         self.check_ground_level()
         self.center_camera_to_player()
 
-    def player_walk(self, dt):
+    def move_player(self, dt):
         if self.right_pressed or self.left_pressed:
             self.walk_clock += dt   
             if self.walk_clock > self.walk_timer:
@@ -166,11 +164,13 @@ class MyGame(arcade.Window):
                 else:
                     self.player_sprite.texture = texture_pair[1]
         elif self.on_ground:
-            self.player_sprite.texture = self.idle_texture        
+            if self.going_right:
+                self.player_sprite.texture = self.idle_texture[0]        
+            else:
+                self.player_sprite.texture = self.idle_texture[1]
         
     def check_ground_level(self, y_distance: float = 5):
         # break at the first collision
-        self.can_jump = False
         for wall in self.scene["Walls"]:
             if wall.guid == "box":
                 if arcade.check_for_collision(self.player_sprite, wall):
@@ -192,7 +192,6 @@ class MyGame(arcade.Window):
                             break
             if arcade.check_for_collision(self.player_sprite, wall):
                 self.player_sprite.bottom = wall.top
-                self.can_jump = True
                 self.on_ground = True
                 break 
         
