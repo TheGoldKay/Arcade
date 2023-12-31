@@ -13,15 +13,16 @@ COLOR: dict = {
 }
 
 PLAYER: dict = {
-    "img_path": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png",
+    "img_idle": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png",
+    "img_jump": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_jump.png",
     "speed": 5,
-    "jump": 20,
+    "jump": 80,
 }
 
 # Constants used to scale sprites from their original size
 CHARACTER_SCALING = 1
 TILE_SCALING = 0.5
-GRAVITY = 4
+GRAVITY = 3
 
 class MyGame(arcade.Window):
     def __init__(self):
@@ -43,6 +44,9 @@ class MyGame(arcade.Window):
         self.can_jump = True
         self.jump_counter = 0
         self.jump_limit = 2
+        
+        # CAMERA    
+        self.camera = None
 
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
@@ -54,12 +58,13 @@ class MyGame(arcade.Window):
         self.scene.add_sprite_list("Walls", use_spatial_hash=True)
 
         # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = arcade.Sprite(PLAYER["img_path"], CHARACTER_SCALING)
+        self.player_sprite = arcade.Sprite(PLAYER["img_idle"], CHARACTER_SCALING)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
         self.scene.add_sprite("Player", self.player_sprite)
         
-        # create ``physics engine``
+        #create ``physics engine``
+        
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.scene.get_sprite_list("Walls")
         )
@@ -68,7 +73,9 @@ class MyGame(arcade.Window):
         self.left_pressed = False
         self.right_pressed = False
         self.up_pressed = False
-        self.down_pressed = False
+        
+        # camera
+        self.camera = arcade.Camera(self.width, self.height)
         
         # define ground level 
         ground_tile = arcade.Sprite(":resources:images/tiles/grassMid.png", TILE_SCALING)
@@ -95,11 +102,21 @@ class MyGame(arcade.Window):
             wall.guid = "box"
             self.scene.add_sprite("Walls", wall)
             #print(wall.guid)
+            
+    def center_camera_to_player(self):
+        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
+        screen_center_y = self.player_sprite.center_y - (self.camera.viewport_height / 2)
+
+        # Don't let camera travel past 0, 0
+        player_centered = max(screen_center_x, 0), max(screen_center_y, 0)
+
+        self.camera.move_to(player_centered)
 
     def on_draw(self):
         self.clear()
         # Draw our sprites
         self.scene.draw()
+        self.camera.use()
     
     def on_update(self, dt):
         # Move the player with the physics engine
@@ -112,8 +129,10 @@ class MyGame(arcade.Window):
             self.player_sprite.change_x = PLAYER["speed"]
         self.physics_engine.update()
         self.check_ground_level()
+        self.center_camera_to_player()
         
     def check_ground_level(self, y_distance: float = 5):
+        # break at the first collision
         self.can_jump = False
         for wall in self.scene["Walls"]:
             if wall.guid == "box":
@@ -142,7 +161,7 @@ class MyGame(arcade.Window):
         if key == arcade.key.ESCAPE:
             arcade.close_window()
         if key == arcade.key.UP or key == arcade.key.W: # JUMP ONE TIME
-            self.player_sprite.center_y += PLAYER["jump"] * 5
+            self.player_sprite.center_y += PLAYER["jump"]
         if key == arcade.key.LEFT or key == arcade.key.A:
             self.left_pressed = True
         elif key == arcade.key.RIGHT or key == arcade.key.D:
