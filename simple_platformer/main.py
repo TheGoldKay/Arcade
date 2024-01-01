@@ -27,6 +27,7 @@ CHARACTER_SCALING = 1
 TILE_SCALING = 0.5
 COIN_SCALING = 0.5
 GRAVITY = 3
+GAME_VOLUME = 0.08
 
 class MyGame(arcade.Window):
     def __init__(self):
@@ -170,6 +171,20 @@ class MyGame(arcade.Window):
         self.move_player(dt)
         self.check_ground_level()
         self.center_camera_to_player()
+        self.player_coin()
+    
+    def player_coin(self):
+        # See if we hit any coins
+        coin_hit_list = arcade.check_for_collision_with_list(
+            self.player_sprite, self.scene["Coins"]
+        )
+
+        # Loop through each coin we hit (if any) and remove it
+        for coin in coin_hit_list:
+            # Remove the coin
+            coin.remove_from_sprite_lists()
+            # Play a sound
+            self.collect_coin_sound.set_volume(GAME_VOLUME, arcade.play_sound(self.collect_coin_sound))
 
     def move_player(self, dt):
         if self.right_pressed or self.left_pressed:
@@ -230,7 +245,7 @@ class MyGame(arcade.Window):
             self.player_sprite.center_y += PLAYER["jump"]
             self.on_ground = False
             self.is_falling = False
-            self.jump_sound.set_volume(0.1, arcade.play_sound(self.jump_sound))
+            self.jump_sound.set_volume(GAME_VOLUME, arcade.play_sound(self.jump_sound))
             if self.going_right:
                 self.player_sprite.texture = self.jump_texture[0]
             else:
