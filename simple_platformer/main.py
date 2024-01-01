@@ -17,6 +17,7 @@ PLAYER: dict = {
     "img_idle": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png",
     "img_jump": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_jump.png",
     "img_walk": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_walk{}.png",
+    "falling_img": ":resources:images/animated_characters/female_adventurer/femaleAdventurer_fall.png",
     "speed": 5,
     "jump": 80,
 }
@@ -24,6 +25,7 @@ PLAYER: dict = {
 # Constants used to scale sprites from their original size
 CHARACTER_SCALING = 1
 TILE_SCALING = 0.5
+COIN_SCALING = 0.5
 GRAVITY = 3
 
 class MyGame(arcade.Window):
@@ -58,7 +60,12 @@ class MyGame(arcade.Window):
         # flip
         self.flipped_horizontally = False
         self.going_right = True
-
+        
+        # Load sounds
+        self.collect_coin_sound = arcade.load_sound(":resources:sounds/coin1.wav")
+        self.jump_sound = arcade.load_sound(":resources:sounds/jump1.wav")
+        self.is_falling = False
+                
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
         # Initialize Scene
@@ -67,6 +74,7 @@ class MyGame(arcade.Window):
         # Create the Sprite lists
         self.scene.add_sprite_list("Player")
         self.scene.add_sprite_list("Walls", use_spatial_hash=True)
+        self.scene.add_sprite_list("Coins")
 
         # set left and right facing sprites
         self.idle_texture = [arcade.load_texture(PLAYER["img_idle"]), 
@@ -78,6 +86,12 @@ class MyGame(arcade.Window):
             [arcade.load_texture(PLAYER["img_walk"].format(i)), 
              arcade.load_texture(PLAYER["img_walk"].format(i), flipped_horizontally=True)] 
             for i in range(8)])
+        # falling sprite
+        self.fall_texture = arcade.load_texture(PLAYER["falling_img"])
+        # if there is to timer as soon as the jump is made the falling sprite is displayed
+        # thus you can't even see the jump animation before the fall is shown
+        self.fall_clock = 0
+        self.fall_timer = 1.1 # wait self.fall_timer before display falling sprite
         # set player sprite
         self.player_sprite = arcade.Sprite(PLAYER["img_idle"], CHARACTER_SCALING)
         self.player_sprite.center_x = 64
@@ -98,10 +112,6 @@ class MyGame(arcade.Window):
         # camera
         self.camera = arcade.Camera(self.width, self.height)
         
-        # define ground level 
-        ground_tile = arcade.Sprite(":resources:images/tiles/grassMid.png", TILE_SCALING)
-        self.ground_level = 32 + ground_tile.height / 2
-
         # Create the ground
         # This shows using a loop to place multiple sprites horizontally
         for x in range(0, 1250, 64):
@@ -123,6 +133,14 @@ class MyGame(arcade.Window):
             wall.guid = "box"
             self.scene.add_sprite("Walls", wall)
             #print(wall.guid)
+            
+        
+        # Use a loop to place some coins for our character to pick up
+        for x in range(128, 1250, 256):
+            coin = arcade.Sprite(":resources:images/items/coinGold.png", COIN_SCALING)
+            coin.center_x = x
+            coin.center_y = 96
+            self.scene.add_sprite("Coins", coin)
             
     def center_camera_to_player(self):
         screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
@@ -164,10 +182,18 @@ class MyGame(arcade.Window):
                 else:
                     self.player_sprite.texture = texture_pair[1]
         elif self.on_ground:
+            self.is_falling = False
             if self.going_right:
                 self.player_sprite.texture = self.idle_texture[0]        
             else:
                 self.player_sprite.texture = self.idle_texture[1]
+        else:
+            self.fall_clock += dt
+            if self.fall_clock > self.fall_timer:
+                self.fall_clock = 0
+                self.is_falling = True
+            if self.is_falling:
+                self.player_sprite.texture = self.fall_texture
         
     def check_ground_level(self, y_distance: float = 5):
         # break at the first collision
@@ -203,6 +229,8 @@ class MyGame(arcade.Window):
         if key == arcade.key.UP or key == arcade.key.W: # JUMP ONE TIME
             self.player_sprite.center_y += PLAYER["jump"]
             self.on_ground = False
+            self.is_falling = False
+            self.jump_sound.set_volume(0.1, arcade.play_sound(self.jump_sound))
             if self.going_right:
                 self.player_sprite.texture = self.jump_texture[0]
             else:
