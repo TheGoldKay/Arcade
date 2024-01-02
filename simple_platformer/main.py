@@ -66,6 +66,12 @@ class MyGame(arcade.Window):
         self.collect_coin_sound = arcade.load_sound(":resources:sounds/coin1.wav")
         self.jump_sound = arcade.load_sound(":resources:sounds/jump1.wav")
         self.is_falling = False
+        
+        # A Camera that can be used to draw GUI elements
+        self.gui_camera = None
+
+        # Keep track of the score
+        self.score = 0
                 
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
@@ -113,6 +119,12 @@ class MyGame(arcade.Window):
         # camera
         self.camera = arcade.Camera(self.width, self.height)
         
+        # Set up the GUI Camera
+        self.gui_camera = arcade.Camera(self.width, self.height)
+
+        # Keep track of the score
+        self.score = 0
+        
         # Create the ground
         # This shows using a loop to place multiple sprites horizontally
         for x in range(0, 1250, 64):
@@ -157,6 +169,19 @@ class MyGame(arcade.Window):
         # Draw our sprites
         self.scene.draw()
         self.camera.use()
+        
+        # Activate the GUI camera before drawing GUI elements
+        self.gui_camera.use()
+
+        # Draw our score on the screen, scrolling it with the viewport
+        score_text = f"Score: {self.score}"
+        arcade.draw_text(
+            score_text,
+            10,
+            10,
+            arcade.csscolor.WHITE,
+            18,
+        )
     
     def on_update(self, dt):
         # Move the player with the physics engine
@@ -185,6 +210,8 @@ class MyGame(arcade.Window):
             coin.remove_from_sprite_lists()
             # Play a sound
             self.collect_coin_sound.set_volume(GAME_VOLUME, arcade.play_sound(self.collect_coin_sound))
+            # Add one to the score
+            self.score += 1
 
     def move_player(self, dt):
         if self.right_pressed or self.left_pressed:
