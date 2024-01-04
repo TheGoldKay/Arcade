@@ -15,7 +15,7 @@ class GameScreen(arcade.Window):
         self.background_color = BG_COLOR 
 
     def setup(self):
-        self.snake = snake.Snake()
+        self.snake = snake.Snake(BOX_W // 2, BOX_H // 2, BOX_SIZE)
         self.grid = self.get_grid()
     
     def get_grid(self) -> List[List[Dict]]:
@@ -24,16 +24,15 @@ class GameScreen(arcade.Window):
             line: List[Dict] = []
             for col in range(BOX_W):
                 box: Dict = {"r": row, "c": col}
-                box["filled"] = random.choice([True, False])
+                box["filled"] = False
                 line.append(box)
             grid.append(line)
         return grid
         
     
     def draw_grid(self) -> None:
-        for r in range(BOX_H):
-            for c in range(BOX_W):
-                box: Dict = self.grid[r][c]
+        for line in self.grid:
+            for box in line:
                 x: int = box["c"] * BOX_SIZE
                 y: int = box["r"] * BOX_SIZE
                 # setting the center (Arcade draws from the center_x and center_y)
@@ -48,19 +47,25 @@ class GameScreen(arcade.Window):
         self.clear()
         self.draw_grid()
         self.snake.draw()
-    
-    def update_grid(self):
-        pass
 
     def on_update(self, delta_time):
         self.snake.update(delta_time)
-        self.update_grid()
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
             arcade.close_window()
-        else:
-            self.setup()
+        elif key == arcade.key.W and self.snake.get_yvel() != -1:
+            self.snake.set_yvel(1)
+            self.snake.set_xvel(0)
+        elif key == arcade.key.S and self.snake.get_yvel() != 1:
+            self.snake.set_yvel(-1)
+            self.snake.set_xvel(0)
+        elif key == arcade.key.A and self.snake.get_xvel() != 1:
+            self.snake.set_xvel(-1)
+            self.snake.set_yvel(0)
+        elif key == arcade.key.D and self.snake.get_xvel() != -1:
+            self.snake.set_xvel(1)
+            self.snake.set_yvel(0)
             
 def main():
     window = GameScreen(WIN_WIDTH, WIN_HEIGHT, "Snake Game")
