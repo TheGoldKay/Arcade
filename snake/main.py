@@ -1,4 +1,4 @@
-import arcade, random
+import arcade, random, time, sys
 from typing import Tuple, List, Dict, Any
 import snake
 
@@ -16,7 +16,7 @@ class GameScreen(arcade.Window):
         self.food = None
 
     def setup(self):
-        self.snake = snake.Snake(BOX_W // 2, BOX_H // 2, BOX_SIZE)
+        self.snake = snake.Snake(BOX_W // 2, BOX_H // 2, BOX_SIZE, BOX_W, BOX_H)
         self.grid = self.get_grid()
         self.make_food()
     
@@ -58,14 +58,17 @@ class GameScreen(arcade.Window):
     
     def on_draw(self):
         self.clear()
-        self.draw_grid()
         self.snake.draw()
-
+        self.draw_grid()
+        if self.snake.is_dead:
+            arcade.draw_text("Game Over", WIN_WIDTH // 2 -220, WIN_HEIGHT // 2, arcade.color.RED, 70, bold=True)
+            
     def on_update(self, delta_time):
-        self.snake.update(delta_time)
-        if self.snake.ate(self.food):
-            self.make_food()
-
+        if not self.snake.is_dead:
+            self.snake.update(delta_time)
+            if self.snake.ate(self.food):
+                self.make_food()
+            
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
             arcade.close_window()
@@ -81,6 +84,8 @@ class GameScreen(arcade.Window):
         elif key == arcade.key.D and self.snake.get_xvel() != -1:
             self.snake.set_xvel(1)
             self.snake.set_yvel(0)
+        elif key == arcade.key.SPACE:
+            self.setup()
             
 def main():
     window = GameScreen(WIN_WIDTH, WIN_HEIGHT, "Snake Game")
