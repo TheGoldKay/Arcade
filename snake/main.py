@@ -13,10 +13,12 @@ class GameScreen(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title, center_window=True)
         self.background_color = BG_COLOR 
+        self.food = None
 
     def setup(self):
         self.snake = snake.Snake(BOX_W // 2, BOX_H // 2, BOX_SIZE)
         self.grid = self.get_grid()
+        self.make_food()
     
     def get_grid(self) -> List[List[Dict]]:
         grid: List[List[Dict]] = []
@@ -39,9 +41,20 @@ class GameScreen(arcade.Window):
                 x += BOX_SIZE // 2
                 y += BOX_SIZE // 2
                 if box["filled"]:
-                    arcade.draw_rectangle_filled(x, y, BOX_SIZE, BOX_SIZE, arcade.color.RED)
+                    arcade.draw_rectangle_filled(x, y, BOX_SIZE, BOX_SIZE, arcade.color.YELLOW)
                 else:
                     arcade.draw_rectangle_outline(x, y, BOX_SIZE, BOX_SIZE, arcade.color.WHITE)
+    
+    def make_food(self):
+        if self.food:
+            self.grid[self.food["r"]][self.food["c"]]["filled"] = False
+        while True:
+            r = random.randint(0, WIN_HEIGHT // BOX_H - 1)
+            c = random.randint(0, WIN_WIDTH // BOX_W - 1)
+            if not self.grid[r][c]["filled"]:
+                self.grid[r][c]["filled"] = True
+                self.food = {"r": r, "c": c}
+                return
     
     def on_draw(self):
         self.clear()
@@ -50,6 +63,8 @@ class GameScreen(arcade.Window):
 
     def on_update(self, delta_time):
         self.snake.update(delta_time)
+        if self.snake.ate(self.food):
+            self.make_food()
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:

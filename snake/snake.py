@@ -1,4 +1,5 @@
 import arcade 
+from copy import deepcopy as copy
 
 class Snake:
     def __init__(self, row, col, size):
@@ -11,6 +12,8 @@ class Snake:
         self.clock = 0 
         # time to wait before moving a single box (block) in either direction
         self.timer = 0.2
+        # last piece - keep track to add it back when the snake eats
+        self.last = self.body[-1]
         
     def get_xvel(self):
         return self.xvel
@@ -29,9 +32,17 @@ class Snake:
         if self.clock >= self.timer:
             self.clock = 0
             last: dict = self.body.pop()
+            self.last = copy(last)
             last["c"] = self.body[0]["c"] + self.xvel
             last["r"] = self.body[0]["r"] + self.yvel
             self.body.insert(0, last)
+    
+    def ate(self, food) -> bool:
+        if food:
+            if food["r"] == self.body[0]["r"] and food["c"] == self.body[0]["c"]:
+                self.body.append(self.last)
+                return True 
+        return False
     
     def draw(self) -> None:
         for box in self.body:
