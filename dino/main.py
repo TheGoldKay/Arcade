@@ -4,7 +4,7 @@ from dino import Dino
 class Game(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title, center_window=True)
-        self.background_color = arcade.color.WHITE
+        self.background_color = (18,53,36)
         self.ground = None        
         self.dino = None
     
