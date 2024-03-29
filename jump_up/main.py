@@ -1,7 +1,9 @@
 import arcade
+from supports import Supports
+from tiles import Tiles
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 560
+SCREEN_HEIGHT = 700
 SCREEN_TITLE = "Jump UP"
 
 
@@ -22,7 +24,7 @@ class Game(arcade.Window):
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
-        pass
+        self.tiles = Tiles()
 
     def on_draw(self):
         """
@@ -32,6 +34,7 @@ class Game(arcade.Window):
         # This command should happen before we start drawing. It will clear
         # the screen to the background color, and erase what we drew last frame.
         self.clear()
+        self.tiles.draw()
 
         # Call draw() on all your sprite lists below
 
@@ -41,7 +44,7 @@ class Game(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
-        pass
+        self.tiles.update(delta_time)
 
     def on_key_press(self, key, key_modifiers):
         """
