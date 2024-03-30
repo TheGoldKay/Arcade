@@ -4,7 +4,7 @@ from tiles import Tiles
 
 SCREEN_WIDTH = 560
 SCREEN_HEIGHT = 700
-SCREEN_TITLE = "Jump UP"
+SCREEN_TITLE = "Jump Up"
 
 
 class Game(arcade.Window):
