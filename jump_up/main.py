@@ -5,6 +5,7 @@ from tiles import Tiles
 SCREEN_WIDTH = 560
 SCREEN_HEIGHT = 700
 SCREEN_TITLE = "Jump Up"
+SPEED = 100
 
 
 class Game(arcade.Window):
@@ -24,7 +25,8 @@ class Game(arcade.Window):
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
-        self.tiles = Tiles()
+        self.tiles = Tiles(SPEED)
+        self.supports = Supports(self.tiles.get_tiles(), SPEED)
 
     def on_draw(self):
         """
@@ -35,6 +37,7 @@ class Game(arcade.Window):
         # the screen to the background color, and erase what we drew last frame.
         self.clear()
         self.tiles.draw()
+        self.supports.draw()
 
         # Call draw() on all your sprite lists below
 
@@ -45,6 +48,9 @@ class Game(arcade.Window):
         need it.
         """
         self.tiles.update(delta_time)
+        self.supports.update(delta_time)
+        if self.tiles.removed:
+            self.supports.new_support(self.tiles.get_tiles()[-1])
 
     def on_key_press(self, key, key_modifiers):
         """

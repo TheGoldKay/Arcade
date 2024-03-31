@@ -24,7 +24,7 @@ class Tile(arcade.Sprite):
 
 
 class Tiles(arcade.SpriteList):
-    def __init__(self, tile_vel=100):
+    def __init__(self, tile_vel):
         super().__init__()
         self.vel = tile_vel
         test_tile = Tile()
@@ -34,6 +34,7 @@ class Tiles(arcade.SpriteList):
         self.min_lines += 3
         # a list of list, each list is a line, each line with a list of tiles
         self.list = self._set_tile_list()
+        self.removed = False
     
     def _set_tile_list(self):
         return list(map(lambda row: self._new_line(row=row), range(self.min_lines)))
@@ -55,10 +56,12 @@ class Tiles(arcade.SpriteList):
     def _remove_line(self):
         # remove the first line (the one at the bottom) if it's below the window max height (check only one)
         # then add a new line at the top (set the bottom of the last as the top of the previous last line)
+        self.removed = False
         if self.list[0][0].top <= 0:
             self.list.pop(0)
             bottom = self.list[-1][-1].top
             self.list.append(self._new_line(bottom=bottom))
+            self.removed = True
            
     def update(self, dt):
         self._move_up(dt)
@@ -68,6 +71,9 @@ class Tiles(arcade.SpriteList):
         for line in self.list:
             for tile in line:
                 tile.draw()
+    
+    def get_tiles(self):
+        return self.list
     
     def _move_up(self, dt):
         for line in self.list:
