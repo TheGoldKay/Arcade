@@ -30,7 +30,10 @@ class Supports(arcade.SpriteList):
         support.center_x = tile.center_x
         support.scale = 2
         self.append(support)
-            
+    
+    def get_supports(self):
+        return self
+    
     def update(self, dt):
         for support in self:
             support.top -= self.vel * dt
