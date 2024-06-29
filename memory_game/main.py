@@ -1,28 +1,27 @@
 import arcade
-import math
 
-# Define a custom function to rotate a point
-def custom_rotate_point(point, angle):
-    x, y = point
-    angle_rad = math.radians(angle)
-    new_x = x * math.cos(angle_rad) - y * math.sin(angle_rad)
-    new_y = x * math.sin(angle_rad) + y * math.cos(angle_rad)
-    return {x: new_x, y: new_y}
 class Rect(object):
     def __init__(self, center_x, center_y, width, height):
         self.x = center_x
         self.y = center_y
         self.w = width
         self.h = height
-        self.rect_left = self.x - self.w // 2
-        self.rect_right = self.x + self.w // 2
-        self.rect_top = self.y - self.h // 2
-        self.rect_bottom = self.y + self.h // 2
+        self.left = self.x - self.w // 2
+        self.right = self.x + self.w // 2
+        self.top = self.y + self.h // 2
+        self.bottom = self.y - self.h // 2
+        self.middle = (center_x, center_y)
     
-    def draw(self):
-        arcade.draw_lrtb_rectangle_outline(self.rect_left, self.rect_right, 
-                                           self.rect_bottom, self.rect_top, arcade.color.BLACK)
-
+def draw_tris(rect):
+    #arcade.draw_triangle_filled(rect.x, rect.y, rect.left, rect.top, rect.left, rect.bottom)
+    left = (rect.x, rect.y, rect.left, rect.top, rect.left, rect.bottom)
+    right = (rect.x, rect.y, rect.right, rect.top, rect.right, rect.bottom)
+    top = (rect.x, rect.y, rect.left, rect.top, rect.right, rect.top)
+    bottom = (rect.x, rect.y, rect.left, rect.bottom, rect.right, rect.bottom)
+    arcade.draw_triangle_outline(*left, color=arcade.color.BLACK)
+    arcade.draw_triangle_outline(*right, color=arcade.color.BLACK)
+    arcade.draw_triangle_outline(*top, color=arcade.color.BLACK)
+    arcade.draw_triangle_outline(*bottom, color=arcade.color.BLACK)
 
 class Memory(arcade.Window):
     def __init__(self, width, height, title):
@@ -35,10 +34,8 @@ class Memory(arcade.Window):
         arcade.start_render()
         
         rect = Rect(self.width // 2, self.height // 2, 400, 300)
-        rect.draw()
-        center_x = self.width // 2
-        center_y = self.height // 2
-        arcade.draw_circle_filled(center_x, center_y, 5, arcade.color.BLACK)
+        draw_tris(rect)
+        arcade.draw_circle_filled(rect.x, rect.y, 5, arcade.color.WHITE)
         
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.ESCAPE:
