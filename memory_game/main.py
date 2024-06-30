@@ -48,6 +48,7 @@ class Memory(arcade.Window):
         print("over here")
         self.rect = Rect(self.width // 2, self.height // 2, 400, 300)
         self.tri = TriangleFormation(self.rect)
+        self.seq = []
         
     def on_draw(self):
         arcade.start_render()
@@ -65,6 +66,8 @@ class Memory(arcade.Window):
             self.tri.top["on"] = not self.tri.top["on"]
         if symbol == arcade.key.DOWN:
             self.tri.bottom["on"] = not self.tri.bottom["on"]
+        if symbol == arcade.key.SPACE:
+            self.seq = []
 
 
 window = Memory(600, 400, "Phthalo Green")
