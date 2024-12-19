@@ -15,8 +15,8 @@ class Halves(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
-        for top in range(SCREEN_HEIGHT//BOX_SIZE+1):
-            for right in range(SCREEN_WIDTH//BOX_SIZE+1):
+        for top in range(1, SCREEN_HEIGHT//BOX_SIZE+1):
+            for right in range(1, SCREEN_WIDTH//BOX_SIZE+1):
                 centerx = right * BOX_SIZE - (BOX_SIZE//2)
                 centery = top * BOX_SIZE - (BOX_SIZE//2)
                 arcade.draw_rectangle_outline(centerx, centery, BOX_SIZE, BOX_SIZE, arcade.color.BLACK)
