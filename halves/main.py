@@ -1,6 +1,10 @@
 import arcade
 import sys
 
+sys.path.append("/home/goldkay/Code/Arcade/helper")
+
+from coordinates import centerTopRight
+
 # Constants
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 400
@@ -15,10 +19,11 @@ class Halves(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
-        for top in range(1, SCREEN_HEIGHT//BOX_SIZE+1):
-            for right in range(1, SCREEN_WIDTH//BOX_SIZE+1):
-                centerx = right * BOX_SIZE - (BOX_SIZE//2)
-                centery = top * BOX_SIZE - (BOX_SIZE//2)
+        for y in range(1, SCREEN_HEIGHT//BOX_SIZE+1):
+            for x in range(1, SCREEN_WIDTH//BOX_SIZE+1):
+                top = y * BOX_SIZE
+                right = x * BOX_SIZE
+                centerx, centery = centerTopRight(top, right, BOX_SIZE, BOX_SIZE)
                 arcade.draw_rectangle_outline(centerx, centery, BOX_SIZE, BOX_SIZE, arcade.color.BLACK)
 
     def on_key_press(self, key, modifiers):       
