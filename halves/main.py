@@ -12,6 +12,12 @@ SCREEN_TITLE = "Halves"
 BACKGROUND_COLOR = arcade.color.PHTHALO_GREEN
 BOX_SIZE = 25
 
+def middle():
+    cx = ((SCREEN_WIDTH//BOX_SIZE + 1) //  2) * BOX_SIZE - BOX_SIZE // 2
+    for y in range(1, SCREEN_HEIGHT//BOX_SIZE+1):
+        cy = y * BOX_SIZE - BOX_SIZE // 2
+        arcade.draw_rectangle_filled(cx, cy, BOX_SIZE, BOX_SIZE, arcade.color.BLACK)
+
 class Halves(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, center_window=True)
@@ -19,6 +25,8 @@ class Halves(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
+        
+        middle()
         for y in range(1, SCREEN_HEIGHT//BOX_SIZE+1):
             for x in range(1, SCREEN_WIDTH//BOX_SIZE+1):
                 top = y * BOX_SIZE
@@ -26,6 +34,7 @@ class Halves(arcade.Window):
                 centerx, centery = centerTopRight(top, right, BOX_SIZE, BOX_SIZE)
                 arcade.draw_rectangle_outline(centerx, centery, BOX_SIZE, BOX_SIZE, arcade.color.BLACK)
 
+        arcade.finish_render()
     def on_key_press(self, key, modifiers):       
         if key == arcade.key.ESCAPE:
             sys.exit() # close the debugger terminal and game screen at the same time
