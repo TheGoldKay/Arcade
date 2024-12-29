@@ -31,8 +31,8 @@ class Halves(arcade.Window):
             sys.exit() # close the debugger terminal and game screen at the same time
 
 def main():
-    game = Halves()
-    arcade.run()
+    halves = Halves()
+    halves.run()
 
 if __name__ == "__main__":
     main()
