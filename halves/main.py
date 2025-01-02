@@ -95,35 +95,28 @@ class Reds:
         ball.update(dt)
         return ball
     
-    def collision(self, ball, dt):
+    def collision2v2(self, ball, dt):
         for i, box in enumerate(self.colored):
-            if (ball.x+1, ball.y) == box["pos"] and ball.x+1 != ball.last_move[0]:
-                self.colored[i]["color"] = True
-                ball.x_vel = -1
-                ball.x -= 2
-                print('right')
+            if (ball.x + ball.x_vel, ball.y) == box["pos"] and ball.x != ball.last_move[0] and box["color"] == False:
                 x, y = box["pos"]
-                self.colored.append({"pos": (x-2, y), "color": False})
-                
-                return ball
-            if (ball.x-1, ball.y) == box["pos"] and ball.x-1 != ball.last_move[0]:
+                self.colored.append({"pos": (x - ball.x_vel, y), "color": False})
+                ball.x_vel *= -1
+                ball.x += 2 * ball.x_vel
                 self.colored[i]["color"] = True
-                ball.x_vel = 1
-                ball.x += 2
-                print('left')
-                x, y = box["pos"]
-                self.colored.append({"pos": (x+2, y), "color": False})
+                print(len(self.colored))
                 return ball
         ball.update(dt)
         return ball        
             
     def draw(self):
         for box in self.colored:
+            x, y = box["pos"]
+            cx = x * BOX_SIZE - BOX_SIZE // 2
+            cy = y * BOX_SIZE - BOX_SIZE // 2
             if box["color"]:
-                x, y = box["pos"]
-                cx = x * BOX_SIZE - BOX_SIZE // 2
-                cy = y * BOX_SIZE - BOX_SIZE // 2
                 arcade.draw_rectangle_filled(cx, cy, BOX_SIZE, BOX_SIZE, arcade.color.RED)
+            else:
+                arcade.draw_rectangle_outline(cx, cy, BOX_SIZE, BOX_SIZE, arcade.color.WHITE_SMOKE)
 
 class Halves(arcade.Window):
     def __init__(self):
@@ -150,7 +143,7 @@ class Halves(arcade.Window):
         arcade.finish_render()
         
     def on_update(self, dt):
-        self.ball = self.reds.collision(self.ball, dt)
+        self.ball = self.reds.collision2v2(self.ball, dt)
         
     def on_key_press(self, key, modifiers):       
         if key == arcade.key.ESCAPE:
