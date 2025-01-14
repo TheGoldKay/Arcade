@@ -11,7 +11,7 @@ SCREEN_HEIGHT = 400
 SCREEN_TITLE = "Halves"
 BACKGROUND_COLOR = arcade.color.PHTHALO_GREEN
 LINE_COLOR =(BACKGROUND_COLOR[0] + 50, BACKGROUND_COLOR[1] + 50, BACKGROUND_COLOR[2] + 50)
-BOX_SIZE = 25
+BOX_SIZE = 10#25
 NWIDTH = SCREEN_WIDTH//BOX_SIZE
 NHEIGHT = SCREEN_HEIGHT//BOX_SIZE
 MIDDLE = ((NWIDTH + 1) //  2, (NHEIGHT + 1) //  2)
@@ -29,8 +29,8 @@ class Ball:
         self.x_vel = 1
         self.y_vel = 1
         self.clock = 0
-        self.wait_time = 0.001
-        self.last_move = []
+        self.wait_time = 0#0.001
+        self.last_move = [self.x, self.y]
     
     def _center(self):
         cx = self.x * BOX_SIZE - BOX_SIZE // 2
@@ -66,10 +66,10 @@ class Reds:
         self.colored = self._make_reds()
     
     def _make_reds(self):
-        colored = []
+        colored = {}
         for y in range(1, NHEIGHT+1):
-            colored.append({"pos": (1, y), "color": False})
-            colored.append({"pos": (NWIDTH, y), "color": False})
+            colored[(1, y)] = False
+            colored[(NWIDTH, y)] = False
         return colored
     
     def collision1(self, ball, dt):
@@ -103,24 +103,47 @@ class Reds:
                 ball.x_vel *= -1
                 ball.x += 2 * ball.x_vel
                 self.colored[i]["color"] = True
-                print(len(self.colored))
                 return ball
         ball.update(dt)
-        return ball        
+        return ball
+    
+    def _check_reds(self):
+        for pos in self.colored:
+            if self.colored[pos]:
+                x, y = pos
+                if not self.colored.get(x - 1, y):
+                    self.colored[(x - 1, y)] = False
+                if not self.colored.get(x + 1, y):
+                    self.colored[(x + 1, y)] = False
             
+    def collision3(self, ball, dt):
+        for pos in self.colored:
+            if self.colored[pos] == False and ball.x != ball.last_move[0]:
+                if (ball.x, ball.y) == pos or (ball.x + ball.x_vel, ball.y) == pos:
+                    self.colored[pos] = True          
+                    x, y = pos
+                    self.colored[(x - ball.x_vel, y)] = False
+                    ball.x_vel *= -1
+                    ball.y_vel *= -1
+                    ball.x, ball.y = ball.last_move
+                    return ball
+        ball.update(dt)
+        self._check_reds()
+        return ball
+    
     def draw(self):
-        for box in self.colored:
-            x, y = box["pos"]
+        for pos in self.colored:
+            x, y = pos
             cx = x * BOX_SIZE - BOX_SIZE // 2
             cy = y * BOX_SIZE - BOX_SIZE // 2
-            if box["color"]:
+            if self.colored[pos]:
                 arcade.draw_rectangle_filled(cx, cy, BOX_SIZE, BOX_SIZE, arcade.color.RED)
             else:
                 arcade.draw_rectangle_outline(cx, cy, BOX_SIZE, BOX_SIZE, arcade.color.WHITE_SMOKE)
 
 class Halves(arcade.Window):
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, center_window=True)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, center_window=True, update_rate=1/120)
         arcade.set_background_color(BACKGROUND_COLOR)
     
     def setup(self):
@@ -143,7 +166,7 @@ class Halves(arcade.Window):
         arcade.finish_render()
         
     def on_update(self, dt):
-        self.ball = self.reds.collision2v2(self.ball, dt)
+        self.ball = self.reds.collision3(self.ball, dt)
         
     def on_key_press(self, key, modifiers):       
         if key == arcade.key.ESCAPE:
