@@ -168,7 +168,7 @@ class Halves(arcade.Window):
         arcade.finish_render()
         
     def on_update(self, dt):
-        self.ball = self.reds.collision3(self.ball, dt)
+        self.reds.collision3(self.ball, dt)
         
     def on_key_press(self, key, modifiers):       
         if key == arcade.key.ESCAPE:
