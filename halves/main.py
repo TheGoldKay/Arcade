@@ -107,14 +107,15 @@ class Reds:
         ball.update(dt)
         return ball
     
-    def _check_reds(self):
+    def _check_reds(self, x_vel):
         for pos in self.colored:
             if self.colored[pos]:
                 x, y = pos
-                if not self.colored.get(x - 1, y):
-                    self.colored[(x - 1, y)] = False
-                if not self.colored.get(x + 1, y):
-                    self.colored[(x + 1, y)] = False
+                x += x_vel
+                if x >= 1 and x <= NWIDTH and self.colored.get((x, y), True):
+                    self.colored[(x, y)] = False
+                    print(f"hit: {x_vel} ({x}, {y})")
+                    break
             
     def collision3(self, ball, dt):
         for pos in self.colored:
@@ -126,9 +127,10 @@ class Reds:
                     ball.x_vel *= -1
                     ball.y_vel *= -1
                     ball.x, ball.y = ball.last_move
+                    print(len(self.colored)) 
                     return ball
         ball.update(dt)
-        self._check_reds()
+        self._check_reds(ball.x_vel)
         return ball
     
     def draw(self):
@@ -143,7 +145,7 @@ class Reds:
 
 class Halves(arcade.Window):
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, center_window=True, update_rate=1/120)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, center_window=True, update_rate=1/360)
         arcade.set_background_color(BACKGROUND_COLOR)
     
     def setup(self):
