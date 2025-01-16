@@ -292,6 +292,9 @@ class GameManager(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """ Called whenever a key is pressed. """
+        
+        if key == arcade.key.ESCAPE:
+            arcade.close_window()
 
         # Shoot knife
         if key == arcade.key.SPACE and self.knife_count > 0 and self.current_state == GameState.GAME_RUNNING:
