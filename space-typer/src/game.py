@@ -9,6 +9,9 @@ import arcade
 import src.word
 import src.star
 
+sys.path.append("/home/goldkay/Code/Arcade")
+from helper.keys import code2char, char2code
+
 class GameStates(Enum):
     GAME_OVER = 0
     RUNNING = 1
@@ -161,29 +164,31 @@ class Game(arcade.Window):
             leftmost_word = min(words_starting_with_given_character, key=lambda word: word.x)
             return leftmost_word
 
-    def on_key_press(self, key, modifiers):
-        if key > 127:
-            return
-
+    def on_key_press(self, key_code, modifiers):
+        if key_code == arcade.key.ESCAPE:
+            sys.exit()
+        
         if self.state == GameStates.GAME_OVER:
-            if key == 32: # spacebar
+            if key_code == arcade.key.SPACE:
                 self.setup()
                 self.state = GameStates.RUNNING
                 return
-            elif key == ord("q"): # 113
-                raise SystemExit #sys.exit()
+            elif key_code == arcade.key.Q:
+                sys.exit()
 
-        if self.focus_word is None:
-            self.focus_word = self._get_leftmost_word_starting_with(chr(key))
-            if self.focus_word is not None:
+        key_char = code2char(key_code)
+        if self.focus_word == None:
+            self.focus_word = self._get_leftmost_word_starting_with(key_char)
+            if self.focus_word != None:
                 self.focus_word.in_focus = True
                 self.focus_word.attack()
         else:
-            if self.focus_word.word[0].lower() == chr(key):
+            if self.focus_word.word[0].lower() == key_char:
                 self.focus_word.attack()
 
-        if self.focus_word.word == "":
-            self.word_list.discard(self.focus_word)
-            self.focus_word = None
-            self.score += 1
-            self.create_word()
+        if self.focus_word != None:
+            if self.focus_word.word == "":
+                self.word_list.discard(self.focus_word)
+                self.focus_word = None
+                self.score += 1
+                self.create_word()
