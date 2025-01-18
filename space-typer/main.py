@@ -1,6 +1,7 @@
 import arcade
 import argparse
 import yaml
+import os, shelve
 
 from src.game import Game
 
@@ -65,6 +66,8 @@ def parse_word_list(word_list_filename):
         data = yaml.safe_load(word_list_file)
         return data["words"]
 
+def filter_word_list(word_list, min_length, max_length):
+    return [word for word in word_list if min_length <= len(word) <= max_length]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Start space-typer game.")
@@ -81,4 +84,5 @@ if __name__ == "__main__":
     else:
         words = DEFAULT_WORD_LIST
 
+    words = filter_word_list(words, 3, 5)
     main(args.screen_width, args.screen_height, words)
