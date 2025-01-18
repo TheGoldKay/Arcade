@@ -141,7 +141,7 @@ class Game(arcade.Window):
                     self.create_word()
             
             if self.lives <= 0:
-                path = os.path.join(os.path.expanduser("~"), ".space-typer")
+                path = os.path.join(os.path.abspath(".space-typer"))
                 score_file = shelve.open(path)
                 new_high_score = int()
                 if score_file.get("high_score") == None:
@@ -150,7 +150,7 @@ class Game(arcade.Window):
                     new_high_score = max([self.score, score_file["high_score"]])
                 score_file["high_score"] = new_high_score
                 self.high_score = new_high_score
-
+                score_file.close() # always splicitly close a shelve file
                 self.state = GameStates.GAME_OVER
 
     def _get_leftmost_word_starting_with(self, character):
