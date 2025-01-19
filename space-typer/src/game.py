@@ -5,6 +5,7 @@ import shelve
 from enum import Enum
 
 import arcade
+import pygame
 
 import src.word
 import src.star
@@ -35,6 +36,9 @@ class Game(arcade.Window):
 
         self.word_list = set()
         self.star_list = set()
+        
+        # Initialize pygame mixer
+        pygame.mixer.init()
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -43,6 +47,8 @@ class Game(arcade.Window):
         self.state = GameStates.RUNNING
         self.focus_word = None
         
+        self.type_sound = pygame.mixer.Sound("assets/blocky.wav")
+
         self.star_list = set()
         self.word_list = set()
 
@@ -51,6 +57,10 @@ class Game(arcade.Window):
         for _ in range(25):
             self.create_star()
             
+    def _typing_sound(self):
+        self.type_sound.stop()
+        self.type_sound.set_volume(0.5)
+        self.type_sound.play()
     
     def draw_game_over(self):
         arcade.draw_text("Game Over",
@@ -182,9 +192,11 @@ class Game(arcade.Window):
             if self.focus_word != None:
                 self.focus_word.in_focus = True
                 self.focus_word.attack()
+                self._typing_sound()
         else:
             if self.focus_word.word[0].lower() == key_char:
                 self.focus_word.attack()
+                self._typing_sound()
 
         if self.focus_word != None:
             if self.focus_word.word == "":
