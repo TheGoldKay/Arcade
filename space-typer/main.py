@@ -67,7 +67,7 @@ def parse_word_list(word_list_filename):
         return data["words"]
 
 def filter_word_list(word_list, min_length, max_length):
-    return [word for word in word_list if min_length <= len(word) <= max_length]
+    return list(filter(lambda word: min_length <= len(word) <= max_length, word_list))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Start space-typer game.")
