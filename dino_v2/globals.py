@@ -24,3 +24,4 @@ BIRD = [arcade.Sprite(os.path.join("Assets/Bird", "Bird1.png")),
 CLOUD = arcade.Sprite(os.path.join("Assets/Other", "Cloud.png"))
 
 BG = arcade.Sprite(os.path.join("Assets/Other", "Track.png"))
+BG_SPEED = 100
