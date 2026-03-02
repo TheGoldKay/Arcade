@@ -1,99 +1,54 @@
-"""
-Starting Template
-
-Once you have learned how to use classes, you can begin your program with this
-template.
-
-If Python and Arcade are installed, this example can be run from the command line with:
-python -m arcade.examples.starting_template
-"""
 import arcade
+from grid import TileSprite
+from globals import *
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Playground"
+class MemoryGame(arcade.Window):
+    def __init__(self):
+        super().__init__(WIDTH, HEIGHT, TITLE, update_rate=1/60)
+        arcade.set_background_color(BG_COLOR)
 
+        self.tile_list = arcade.SpriteList()
+        self.label_list = []  # store (value, tile) for drawing text
 
-class MyGame(arcade.Window):
-    """
-    Main application class.
+        for r in range(ROWS):
+            for c in range(COLS):
+                tile = TileSprite(c, r)
+                self.tile_list.append(tile)
 
-    NOTE: Go ahead and delete the methods you don't need.
-    If you do need a method, delete the 'pass' and replace it
-    with your own code. Don't leave 'pass' in this program.
-    """
+        self.mouse_x = WIDTH // 2
+        self.mouse_y = HEIGHT // 2
 
-    def __init__(self, width, height, title):
-        super().__init__(width, height, title, center_window=True)
-
-        arcade.set_background_color(arcade.color.AMAZON)
-
-        # If you have sprite lists, you should create them here,
-        # and set them to None
-
-    def setup(self):
-        """ Set up the game variables. Call to re-start the game. """
-        # Create your sprites and sprite lists here
-        pass
-
-    def on_draw(self):
-        """
-        Render the screen.
-        """
-
-        # This command should happen before we start drawing. It will clear
-        # the screen to the background color, and erase what we drew last frame.
-        self.clear()
-
-        # Call draw() on all your sprite lists below
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.mouse_x = x
+        self.mouse_y = y
 
     def on_update(self, delta_time):
-        """
-        All the logic to move, and the game logic goes here.
-        Normally, you'll call update() on the sprite lists that
-        need it.
-        """
-        pass
+        for tile in self.tile_list:
+            tile.update_wave(self.mouse_x, self.mouse_y)
 
-    def on_key_press(self, key, key_modifiers):
-        """
-        Called whenever a key on the keyboard is pressed.
+    def on_draw(self):
+        self.clear()
 
-        For a full list of keys, see:
-        https://api.arcade.academy/en/latest/arcade.key.html
-        """
-        if key == arcade.key.ESCAPE:
-            arcade.close_window()
+        # Draw all tile sprites (batched)
+        self.tile_list.draw()
 
-    def on_key_release(self, key, key_modifiers):
-        """
-        Called whenever the user lets off a previously pressed key.
-        """
-        pass
-
-    def on_mouse_motion(self, x, y, delta_x, delta_y):
-        """
-        Called whenever the mouse moves.
-        """
-        pass
-
-    def on_mouse_press(self, x, y, button, key_modifiers):
-        """
-        Called when the user presses a mouse button.
-        """
-        pass
-
-    def on_mouse_release(self, x, y, button, key_modifiers):
-        """
-        Called when a user releases a mouse button.
-        """
-        pass
+        # Draw value labels on top of each tile
+        for tile in self.tile_list:
+            arcade.draw_text(
+                str(tile.value),
+                tile.center_x,
+                tile.center_y,
+                arcade.color.WHITE,
+                font_size=18,
+                bold=True,
+                anchor_x="center",
+                anchor_y="center",
+                rotation=tile.angle,
+            )
 
 
 def main():
-    """ Main function """
-    game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    game.setup()
+    game = MemoryGame()
     arcade.run()
 
 
