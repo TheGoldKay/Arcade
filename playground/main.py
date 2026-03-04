@@ -9,6 +9,7 @@ class MemoryGame(arcade.Window):
 
         self.tile_list = arcade.SpriteList()
         self.label_list = []  # store (value, tile) for drawing text
+        self.mouse_moving = False
 
         for r in range(ROWS):
             for c in range(COLS):
@@ -21,10 +22,12 @@ class MemoryGame(arcade.Window):
     def on_mouse_motion(self, x, y, dx, dy):
         self.mouse_x = x
         self.mouse_y = y
+        self.mouse_moving = True
 
     def on_update(self, delta_time):
-        for tile in self.tile_list:
-            tile.update_wave(self.mouse_x, self.mouse_y)
+        if self.mouse_moving:
+            for tile in self.tile_list:
+                tile.update_wave(self.mouse_x, self.mouse_y)
 
     def on_draw(self):
         self.clear()
