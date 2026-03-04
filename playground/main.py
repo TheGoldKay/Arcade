@@ -4,7 +4,7 @@ from globals import *
 
 class MemoryGame(arcade.Window):
     def __init__(self):
-        super().__init__(WIDTH, HEIGHT, TITLE, update_rate=1/60)
+        super().__init__(WIDTH, HEIGHT, TITLE, update_rate=1/60, center_window=True)
         arcade.set_background_color(BG_COLOR)
 
         self.tile_list = arcade.SpriteList()
@@ -27,7 +27,10 @@ class MemoryGame(arcade.Window):
     def on_update(self, delta_time):
         if self.mouse_moving:
             for tile in self.tile_list:
-                tile.update_wave(self.mouse_x, self.mouse_y)
+                if tile.mouse_hit(self.mouse_x, self.mouse_y):
+                    tile.update_wave(self.mouse_x, self.mouse_y)
+                else:
+                    tile.go_back()
 
     def on_draw(self):
         self.clear()

@@ -27,8 +27,8 @@ class TileSprite(arcade.Sprite):
         self.height = TILE_H
 
         # Base center position (Arcade: Y from bottom)
-        self.base_x = START_X + col * (TILE_W + GAP) + TILE_W // 2
-        self.base_y = HEIGHT - (START_Y + row * (TILE_H + GAP) + TILE_H // 2)
+        self.base_x, self.base_y = self.initial_pos()
+        self.base_pos = self.base_x, self.base_y
 
         self.center_x = self.base_x
         self.center_y = self.base_y
@@ -44,6 +44,23 @@ class TileSprite(arcade.Sprite):
         self.target_oy = 0.0
         self.target_tilt = 0.0
         self.target_scale = 1.0
+
+    def initial_pos(self):
+        return (START_X + self.col * (TILE_W + GAP) + TILE_W // 2,
+                HEIGHT - (START_Y + self.row * (TILE_H + GAP) + TILE_H // 2))
+
+    def go_back(self):
+        self.center_x, self.center_y = self.initial_pos()
+        #self.tilt = 0.0
+        self.angle = 0.0
+
+    def mouse_hit(self, mouse_x, mouse_y):
+        left = self.center_x - self.width / 2
+        right = self.center_x + self.width / 2
+        bottom = self.center_y - self.height / 2
+        top = self.center_y + self.height / 2
+
+        return left <= mouse_x <= right and bottom <= mouse_y <= top
 
     def update_wave(self, mouse_x, mouse_y):
         dx = mouse_x - self.base_x
