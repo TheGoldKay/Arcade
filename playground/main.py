@@ -1,4 +1,5 @@
 import arcade
+import random
 from grid import TileSprite
 from globals import *
 
@@ -10,10 +11,12 @@ class MemoryGame(arcade.Window):
         self.tile_list = arcade.SpriteList()
         self.label_list = []  # store (value, tile) for drawing text
         self.mouse_moving = False
+        values = list(range(12)) * 2
+        random.shuffle(values)
 
         for r in range(ROWS):
             for c in range(COLS):
-                tile = TileSprite(c, r)
+                tile = TileSprite(c, r, values.pop())
                 self.tile_list.append(tile)
 
         self.mouse_x = WIDTH // 2
@@ -45,7 +48,7 @@ class MemoryGame(arcade.Window):
                 tile.center_x,
                 tile.center_y,
                 arcade.color.WHITE,
-                font_size=18,
+                font_size=18*2,
                 bold=True,
                 anchor_x="center",
                 anchor_y="center",

@@ -15,12 +15,12 @@ from globals import *
 
 
 class TileSprite(arcade.Sprite):
-    def __init__(self, col, row):
+    def __init__(self, col, row, value):
         super().__init__("tile.png")
 
         self.col = col
         self.row = row
-        self.value = (col + row * COLS) % 8 + 1
+        self.value = value#(col + row * COLS) % 12 + 1
 
         # Scale sprite to fit TILE_W x TILE_H
         self.width = TILE_W
