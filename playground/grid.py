@@ -45,6 +45,9 @@ class TileSprite(arcade.Sprite):
         self.target_tilt = 0.0
         self.target_scale = 1.0
 
+        # invisible
+        self.invisible = True
+
     def initial_pos(self):
         return (START_X + self.col * (TILE_W + GAP) + TILE_W // 2,
                 HEIGHT - (START_Y + self.row * (TILE_H + GAP) + TILE_H // 2))
