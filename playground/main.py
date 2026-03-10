@@ -65,7 +65,7 @@ class MemoryGame(arcade.Window):
                 self.timer = False
         if self.mouse_moving:
             for tile in self.tile_list:
-                if tile.mouse_hit(self.mouse_x, self.mouse_y):
+                if tile.mouse_hit(self.mouse_x, self.mouse_y) and tile not in self.all_visible:
                     tile.update_wave(self.mouse_x, self.mouse_y)
                 else:
                     tile.go_back()
@@ -79,11 +79,14 @@ class MemoryGame(arcade.Window):
         # Draw value labels on top of each tile
         for tile in self.tile_list:
             if not tile.invisible:
+                color = BG_COLOR
+                if tile in self.all_visible:
+                    color = arcade.color.WHITE
                 arcade.draw_text(
                     str(tile.value),
                     tile.center_x,
                     tile.center_y,
-                    arcade.color.WHITE,
+                    color,
                     font_size=18*2,
                     bold=True,
                     anchor_x="center",
